@@ -2,6 +2,7 @@
 
 ```yaml
 slug: <slug>
+format: essay | youtube-script | tg-post | x-thread
 status: setup | interview | followup | synthesis | done
 created: <YYYY-MM-DD>
 updated: <YYYY-MM-DD>
