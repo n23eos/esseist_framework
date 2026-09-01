@@ -69,6 +69,14 @@ essayist/
 ./check.sh
 ```
 
+Для готовых черновиков есть детерминированный гейт L1 (запрещённые фразы, копипаст-артефакты, эмодзи, матзнаки, лимиты форматов):
+
+```bash
+python3 evals/voice/l1_guardrails.py essays/<slug>/draft.md --format essay
+```
+
+Полная eval-петля (L1/L2/L3, held-out, слепой парный судья) описана в `evals/voice/README.md`.
+
 ## Пример
 
 Первое эссе, написанное этим конвейером: [«Инструмент всех инструментов»](https://raincoat.cc/blog.html?post=tool-of-all-tools) — ~5000 знаков, 12 вопросов, 3 порции, outline принят с первого раза.
