@@ -18,7 +18,8 @@ done)
 [ -z "$broken" ] && ok "all resolve" || { echo "$broken" | sed 's/^/       /'; bad "broken links"; }
 
 echo "2. no secrets in tracked files"
-hits=$(git ls-files -z | xargs -0 grep -nEi 'api[_-]?key|secret|token|passwo?r?d|sk-[A-Za-z0-9]{16,}|ghp_|AKIA[0-9A-Z]{16}' || true)
+# Exclude this file: it holds the pattern, so it always matches itself.
+hits=$(git ls-files -z -- ':(exclude)check.sh' | xargs -0 grep -nEi 'api[_-]?key|secret|token|passwo?r?d|sk-[A-Za-z0-9]{16,}|ghp_|AKIA[0-9A-Z]{16}' || true)
 [ -z "$hits" ] && ok "none" || { echo "$hits" | sed 's/^/       /'; bad "possible secret"; }
 
 echo "3. SKILL.md frontmatter"
