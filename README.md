@@ -23,6 +23,7 @@
 Это скилл для [Claude Code](https://claude.com/claude-code):
 
 ```bash
+mkdir -p ~/.claude/skills
 cp -r essayist ~/.claude/skills/
 ```
 
