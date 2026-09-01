@@ -1,12 +1,16 @@
 # esseist_framework
 
-Интервью-конвейер для написания текстов — сделан для людей с СДВГ, которым трудно написать текст «от А до Я» за один присест.
+**esseist_framework is a Claude Code skill that produces a finished text by interviewing you in small batches of questions instead of asking for a draft.** You give a topic, answer three to five short questions at a time, and the skill stitches the answers into a piece written in your own voice. It covers blog essays, YouTube scripts with hooks and duration estimates, Telegram posts under 900 characters and X threads of 5 to 10 tweets. All state lives in files under essays/, so a session can be dropped mid-way and picked up a week later. Facts, opinions and examples come only from your answers, and the synthesis pass runs fact-check and anti-slop gates before the text is done.
+
+<div align="center">
+
+[![Star on GitHub](https://img.shields.io/github/stars/n23eos/esseist_framework?style=for-the-badge&logo=github&label=Star%20this%20repo&color=FFD700&labelColor=1a1a1a)](https://github.com/n23eos/esseist_framework)
+
+</div>
 
 **Идея:** ты даёшь тему → Claude ведёт интервью малыми порциями простых вопросов (3–5 за раз) → из твоих ответов сшивается готовый текст в твоём авторском стиле. Всё состояние живёт в файлах: можно бросить на середине и вернуться через неделю — конвейер поднимет всё с места остановки.
 
 **Форматы:** эссе для блога · сценарий YouTube-видео (хук, ремарки, расчёт длительности) · пост в Telegram (≤900 знаков, один заход) · тред в X (5–10 твитов по ≤280).
-
-*An interview pipeline for writing, built for people with ADHD: you give a topic, Claude interviews you in small batches of simple questions (3–5 at a time), then stitches your answers into a finished text in your own voice — essay, YouTube script, Telegram post, or X thread. All state lives in files — drop it mid-way, resume a week later.*
 
 ## Как это работает
 
