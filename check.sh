@@ -3,11 +3,12 @@
 # Кода тут нет, поэтому «тесты» — это проверки того, что инструкции скилла
 # не противоречат друг другу и не ссылаются в пустоту.
 set -uo pipefail
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || { echo "cannot cd to repo root"; exit 2; }
 
 fail=0
 ok()   { printf '  ok   %s\n' "$1"; }
 bad()  { printf '  FAIL %s\n' "$1"; fail=1; }
+indent() { printf '%s\n' "${1//$'\n'/$'\n'       }" | sed '1s/^/       /'; }
 
 echo "1. relative links resolve"
 broken=$(git ls-files -z '*.md' | xargs -0 grep -noE '\]\(([^)h][^)]*)\)' | while IFS=: read -r f l t; do
@@ -15,12 +16,12 @@ broken=$(git ls-files -z '*.md' | xargs -0 grep -noE '\]\(([^)h][^)]*)\)' | whil
   [ -z "$t" ] && continue
   [ -e "$(dirname "$f")/$t" ] || echo "$f:$l -> $t"
 done)
-[ -z "$broken" ] && ok "all resolve" || { echo "$broken" | sed 's/^/       /'; bad "broken links"; }
+if [ -z "$broken" ]; then ok "all resolve"; else indent "$broken"; bad "broken links"; fi
 
 echo "2. no secrets in tracked files"
 # Exclude this file: it holds the pattern, so it always matches itself.
 hits=$(git ls-files -z -- ':(exclude)check.sh' | xargs -0 grep -nEi 'api[_-]?key|secret|token|passwo?r?d|sk-[A-Za-z0-9]{16,}|ghp_|AKIA[0-9A-Z]{16}' || true)
-[ -z "$hits" ] && ok "none" || { echo "$hits" | sed 's/^/       /'; bad "possible secret"; }
+if [ -z "$hits" ]; then ok "none"; else indent "$hits"; bad "possible secret"; fi
 
 echo "3. SKILL.md frontmatter"
 python3 - <<'PY' || fail=1
@@ -39,8 +40,8 @@ if diff <(sed -n '/^essayist\//,/^```$/p' README.md | grep -oE '[A-Za-z-]+\.md' 
         <(git ls-files 'essayist/*' | xargs -n1 basename | sort -u) >/dev/null; then
   ok "matches"
 else
-  diff <(sed -n '/^essayist\//,/^```$/p' README.md | grep -oE '[A-Za-z-]+\.md' | sort -u) \
-       <(git ls-files 'essayist/*' | xargs -n1 basename | sort -u) | sed 's/^/       /'
+  indent "$(diff <(sed -n '/^essayist\//,/^```$/p' README.md | grep -oE '[A-Za-z-]+\.md' | sort -u) \
+                 <(git ls-files 'essayist/*' | xargs -n1 basename | sort -u))"
   bad "README tree out of sync"
 fi
 
@@ -58,8 +59,8 @@ echo "6. no bare relative essays/ path in skill (must use <base>)"
 # SKILL.md defines the base with a real absolute path; that one line is the
 # exception every other file must go through.
 hits=$(git ls-files -z 'essayist/*' | xargs -0 grep -n 'essays/' | grep -v 'далее <base>' || true)
-[ -z "$hits" ] && ok "all use <base>" || { echo "$hits" | sed 's/^/       /'; bad "bare essays/ path"; }
+if [ -z "$hits" ]; then ok "all use <base>"; else indent "$hits"; bad "bare essays/ path"; fi
 
 echo
-[ $fail -eq 0 ] && echo "PASS" || echo "FAIL"
+if [ $fail -eq 0 ]; then echo "PASS"; else echo "FAIL"; fi
 exit $fail
