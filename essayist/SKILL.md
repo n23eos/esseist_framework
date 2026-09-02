@@ -1,6 +1,11 @@
 ---
 name: essayist
-description: Интервью-конвейер для написания текстов при СДВГ — эссе, статьи-рассуждения, сценарии YouTube-видео, посты для Telegram, треды для X. Пользователь даёт тему, Claude ведёт интервью малыми порциями простых вопросов (3–5 за раз), затем сшивает ответы в готовый текст в авторском стиле пользователя. Use this skill whenever the user wants to write an essay, article, статью, эссе, пост-рассуждение, лонгрид, сценарий видео/ютуба, телеграм-пост, тред through questions or interview; says "напишем статью", "новое эссе", "давай сценарий про X", "пост про Y", "/essayist"; wants to resume unfinished work ("продолжим эссе", "где мы остановились"); wants to save a topic for later ("в копилку"); wants to publish a finished essay ("публикуй"); or mentions писать текст по частям / через вопросы из-за дефицита внимания. Do NOT use for technical docs, README, or texts meant to sound generic.
+description: >-
+  Интервью-конвейер для текстов при СДВГ: эссе, статья, сценарий видео,
+  пост, тред. 3–5 простых вопросов за раз, затем ответы сшиваются в текст в
+  стиле автора. TRIGGER when: «напишем статью», «новое эссе», «сценарий про
+  X», «пост про Y», «продолжим эссе», «в копилку», «публикуй», /essayist. DO
+  NOT TRIGGER when: техдоки, README, generic-тексты.
 ---
 
 # Essayist — тексты через интервью
