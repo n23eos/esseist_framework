@@ -1,6 +1,6 @@
 # esseist_framework
 
-**esseist_framework is a Claude Code skill that produces a finished text by interviewing you in small batches of questions instead of asking for a draft.** You give a topic, answer three to five short questions at a time, and the skill stitches the answers into a piece written in your own voice. It covers blog essays, YouTube scripts with hooks and duration estimates, Telegram posts under 900 characters and X threads of 5 to 10 tweets. All state lives in files under essays/, so a session can be dropped mid-way and picked up a week later. Facts, opinions and examples come only from your answers, and the synthesis pass runs fact-check and anti-slop gates before the text is done.
+**esseist_framework is a Claude Code skill that produces a finished text by interviewing you in small batches of questions instead of asking for a draft.** You provide a topic, answer three to five short questions at a time, and the skill stitches your answers into a piece written in your own voice. It supports blog essays, Medium articles, YouTube scripts with hooks and duration estimates, Telegram posts under 900 characters, short and long X posts, and X threads of 5–10 posts. A style questionnaire builds a voice fingerprint so drafts sound like you rather than like a model. All state lives in files under `essays/`, so you can stop halfway through and resume a week later. Facts, opinions, and examples come only from your answers, and the synthesis pass applies fact-checking and anti-slop gates before the text is considered finished.
 
 <div align="center">
 
@@ -8,79 +8,85 @@
 
 </div>
 
-**Идея:** ты даёшь тему → Claude ведёт интервью малыми порциями простых вопросов (3–5 за раз) → из твоих ответов сшивается готовый текст в твоём авторском стиле. Всё состояние живёт в файлах: можно бросить на середине и вернуться через неделю — конвейер поднимет всё с места остановки.
+**The idea:** you provide a topic → Claude interviews you with small batches of simple questions (3–5 at a time) → your answers are stitched into a finished piece in your own voice. All state is stored in files, so you can stop halfway through and return a week later—the pipeline resumes exactly where you left off.
 
-**Форматы:** эссе для блога · сценарий YouTube-видео (хук, ремарки, расчёт длительности) · пост в Telegram (≤900 знаков, один заход) · тред в X (5–10 твитов по ≤280).
+**Formats:** blog essay · Medium article (curation, AI disclosure, tags) · YouTube script (hook, stage directions, duration estimate) · Telegram post (≤900 characters, single pass) · short X post (≤280 weighted units) · long X post (up to 25,000 weighted units) · X thread (5–10 posts).
 
-## Как это работает
+## How it works
 
-1. **Setup** — тема + мета-вопросы: для кого, главная мысль, площадка/объём, тон. У коротких форматов мета сжата до 0–2 вопросов.
-2. **Интервью** — карта вопросов (9–15 для эссе, 3–6 для поста/треда), подаётся порциями по 3–5 с прогресс-баром («вопросы 5–8 из 12»). Каждый вопрос отвечается 1–3 предложениями с телефона, хоть голосовым. Команды: «скип», «стоп», «сшивай», «в копилку».
-3. **Добивка** — максимум одна порция уточняющих вопросов по тонким местам (опционально).
-4. **Сшивка** — outline на согласование (для длинных форматов) → черновик в твоём стиле → анти-слоп проход → контроль объёма. Жёсткое правило: факты, мнения и примеры — только из твоих ответов, ничего не досочиняется.
-5. **Публикация** — по команде «публикуй»: деплой эссе в блог + опциональный EN-перевод с пометкой (процесс в `references/publish.md`, заточен под конкретный сайт — замени на свой).
+1. **Setup** — topic plus a few framing questions: audience, core idea, platform/length, and tone. Short formats reduce this to 0–2 questions.
+2. **Interview** — a question map (9–15 questions for an essay, 3–6 for a post or thread), delivered in batches of 3–5 with a progress indicator such as “questions 5–8 of 12.” Each question can be answered in 1–3 sentences from your phone, including by voice. Commands: “skip,” “stop,” “stitch it together,” and “save this idea.”
+3. **Follow-up** — at most one optional batch of clarifying questions about weak or missing details.
+4. **Synthesis** — outline approval for long-form pieces → draft in your voice → anti-slop pass → length check. Hard rule: facts, opinions, and examples must come from your answers; the skill never invents content on your behalf.
+5. **Publishing** — on the “publish” command: deploy the essay to a blog, with an optional labeled English translation. The process lives in `references/publish.md` and is tailored to one specific site, so replace it with your own publishing configuration.
 
-Каждая работа — папка `essays/<slug>/` с `session.md` (все вопросы-ответы, статус) и `draft.md` (готовый текст). Все работы живут в одной базовой папке независимо от того, откуда запущен скилл. Мимолётные темы — командой «в копилку» в `essays/_ideas.md`, скилл предложит их при следующем заходе.
+Each piece gets its own `essays/<slug>/` directory containing `session.md` (all questions, answers, and status) and `draft.md` (the finished text). Every piece is stored under one base directory regardless of where the skill was launched. Fleeting ideas can be added to `essays/_ideas.md` with the “save this idea” command; the skill will suggest them the next time you start writing.
 
-## Установка
+## Installation
 
-Это скилл для [Claude Code](https://claude.com/claude-code):
+This is a skill for [Claude Code](https://claude.com/claude-code):
 
 ```bash
 mkdir -p ~/.claude/skills
 ln -s "$(pwd)/essayist" ~/.claude/skills/essayist
 ```
 
-Симлинк, а не копия: установленный скилл всегда совпадает с репо, обновления подхватываются `git pull`. Копия (`cp -r`) молча отстаёт — проверено.
+Use a symlink rather than a copy: the installed skill will stay in sync with the repository and receive updates through `git pull`. A copied directory (`cp -r`) silently falls behind—this has been tested the hard way.
 
-Дальше в любой папке: «давай эссе про X» — скилл подхватится сам. Незаконченное эссе поднимается словами «продолжим эссе».
+You can then invoke `/essayist` from any directory and ask it to write an essay about X. Use the same command to resume an unfinished piece.
 
-Все работы складываются в одну базовую папку, её путь захардкожен в `SKILL.md` (раздел «Файлы») — поменяй его на свой перед первым запуском.
+All work is stored in a single base directory. Its path is hardcoded in `SKILL.md` under “Files”; change it to your own path before the first run.
 
-## Свой стиль
+## Your own voice
 
-Вставь описание своего авторского голоса (лексика, ритм, запрещённые обороты, примеры фраз) в `essayist/style/blueprint.md` ниже разделительной линии — он станет приоритетным источником стиля при сшивке. Без него скилл ищет у тебя стилевой скилл (по умолчанию — `nikolai-voice`, замени в `SKILL.md` на свой) или пишет нейтральным живым языком.
+Add a description of your writing voice—vocabulary, rhythm, phrases to avoid, and sample lines—below the divider in `essayist/style/blueprint.md`. It becomes the primary style source during synthesis. Without it, the skill looks for a personal voice skill (the default is `nikolai-voice`; replace it with yours in `SKILL.md`) or writes in a neutral, natural voice.
 
-## Структура
+## Project structure
 
-```
+```text
 essayist/
-├── SKILL.md                      # оркестратор: фазы, форматы, команды, протокол resume
+├── SKILL.md                      # orchestrator: phases, formats, commands, resume protocol
 ├── references/
-│   ├── question-craft.md         # как генерировать вопросы (6 зон покрытия, плохие → хорошие)
-│   ├── interview-rules.md        # СДВГ-правила интервью: порции, прогресс, обработка ответов
-│   ├── synthesis.md              # правила сшивки: границы дозволенного, outline, анти-слоп, объём
-│   ├── ru-slop.md                # русский анти-слоп: 34 паттерна, метрики, защита голоса
-│   ├── revision.md               # протокол ревизии: 8 проходов от структуры к словам
-│   ├── sources.md                # источник-инжест: заметка из волта → интервью только на дыры
-│   ├── publish.md                # деплой эссе в блог + EN-перевод: общий порядок
-│   ├── publish-raincoat.md       # конфиг площадки (пример: raincoat.cc) — замени на свой
+│   ├── question-craft.md         # how to generate questions: six coverage areas, bad → good
+│   ├── interview-rules.md        # ADHD-friendly interview rules: batches, progress, answers
+│   ├── synthesis.md              # synthesis rules: boundaries, outline, anti-slop, length
+│   ├── ru-slop.md                # Russian anti-slop: 34 patterns, metrics, voice protection
+│   ├── en-slop.md                # English anti-slop: 27 patterns, voice transfer into English
+│   ├── fingerprint.md            # voice fingerprint questionnaire: 3 layers, 6 blocks, calibration
+│   ├── revision.md               # revision protocol: 8 passes from structure to wording
+│   ├── sources.md                # source ingestion: vault note → interview only for missing details
+│   ├── publish.md                # blog deployment plus EN translation: general workflow
+│   ├── publish-raincoat.md       # platform config (raincoat.cc example)—replace with your own
 │   └── formats/
-│       ├── youtube-script.md     # сценарий видео: хук, ремарки, слова/минуты
-│       ├── tg-post.md            # пост ≤900 знаков за один заход
-│       └── x-thread.md           # тред 5–10 твитов по ≤280
+│       ├── youtube-script.md     # video script: hook, stage directions, words per minute
+│       ├── medium-article.md     # Medium article: curation, AI disclosure, tags
+│       ├── tg-post.md            # single-pass post of ≤900 characters
+│       ├── x-post.md             # short X post of ≤280 weighted units
+│       ├── x-longform.md         # long X post or Article of up to 25,000 weighted units
+│       └── x-thread.md           # thread of 5–10 posts, each ≤280 units
 ├── assets/
-│   └── session-template.md       # шаблон файла состояния
+│   └── session-template.md       # session-state file template
 └── style/
-    └── blueprint.md              # слот под твой стиль
+    └── blueprint.md              # slot for your voice; the questionnaire creates
+                                  # two personal files beside it, both kept in .gitignore
 ```
 
-## Проверка
+## Verification
 
-Кода в репо нет, поэтому проверяется согласованность инструкций: живые ссылки, отсутствие секретов, frontmatter скилла, соответствие дерева в README файлам на диске, статусы сессии, пути хранилища.
+There is no application code in this repository, so verification focuses on instruction consistency: working links, absence of exposed credentials, valid skill frontmatter, agreement between the README tree and files on disk, session statuses, and storage paths.
 
 ```bash
 ./check.sh
 ```
 
-Для готовых черновиков есть детерминированный гейт L1 (запрещённые фразы, копипаст-артефакты, эмодзи, матзнаки, лимиты форматов):
+Finished drafts can also be checked with the deterministic L1 gate, which catches banned phrases, copy-paste artifacts, emoji, mathematical symbols, and format limits:
 
 ```bash
 python3 evals/voice/l1_guardrails.py essays/<slug>/draft.md --format essay
 ```
 
-Полная eval-петля (L1/L2/L3, held-out, слепой парный судья) описана в `evals/voice/README.md`.
+The complete evaluation loop—L1/L2/L3, held-out samples, and a blind pairwise judge—is documented in `evals/voice/README.md`.
 
-## Пример
+## Example
 
-Первое эссе, написанное этим конвейером: [«Инструмент всех инструментов»](https://raincoat.cc/blog.html?post=tool-of-all-tools) — ~5000 знаков, 12 вопросов, 3 порции, outline принят с первого раза.
+The first essay produced with this pipeline was [“The Tool of All Tools”](https://raincoat.cc/blog.html?post=tool-of-all-tools): approximately 5,000 characters, 12 questions, 3 batches, and an outline accepted on the first pass.
